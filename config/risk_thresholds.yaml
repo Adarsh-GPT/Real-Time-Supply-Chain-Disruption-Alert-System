@@ -1,0 +1,60 @@
+# risk_thresholds.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+# Configurable thresholds for the hybrid risk scoring engine.
+# Change these values without redeploying or retraining the model.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Hybrid Score Thresholds (0.0 – 1.0) ─────────────────────────────────────
+# hybrid_score = weighted sum of VADER + ML confidence + entity boost + recency
+high_risk_threshold: 0.60
+medium_risk_threshold: 0.30
+# Anything below medium_risk_threshold is classified as LOW risk.
+
+# ── Component Weights ─────────────────────────────────────────────────────────
+# vader + ml_classifier weights must sum to 1.0.
+# entity_boost and recency are applied on top (additive / multiplicative).
+weights:
+  vader: 0.35          # VADER compound score (normalised to 0–1)
+  ml_classifier: 0.45  # ML model "High risk" probability
+  entity_boost_max: 0.20  # Max additional score from entity/keyword matches
+
+# ── Recency Decay ─────────────────────────────────────────────────────────────
+# Headlines older than decay_hours are penalised multiplicatively.
+# Example: a 48h-old headline at min_factor=0.5 contributes 50% of its score.
+recency:
+  decay_hours: 24     # Start decaying after this many hours
+  min_factor: 0.50    # Floor: old headlines are never below 50% weight
+
+# ── Entity Risk Weights ───────────────────────────────────────────────────────
+# Added to the hybrid score when a headline mentions these entity types (spaCy).
+entity_weights:
+  port: 0.15
+  country_high_risk: 0.12  # Conflict zones / heavily sanctioned countries
+  company_critical: 0.10   # Major logistics & shipping firms
+  default_org: 0.05        # Any other ORG / GPE entity
+
+# ── Supply-Chain Domain Keyword Boosts ───────────────────────────────────────
+# These keywords, if found in the cleaned headline, trigger an entity_boost
+# even without a spaCy NER match. Each keyword adds `keyword_boost` to score.
+keyword_boost: 0.08
+high_risk_keywords:
+  - strike
+  - blockade
+  - sanctions
+  - earthquake
+  - flood
+  - hurricane
+  - typhoon
+  - "port closure"
+  - shortage
+  - recall
+  - bankruptcy
+  - tariff
+  - embargo
+  - disruption
+  - "supply chain"
+  - "factory shutdown"
+  - "border closure"
+  - explosion
+  - wildfire
+  - drought

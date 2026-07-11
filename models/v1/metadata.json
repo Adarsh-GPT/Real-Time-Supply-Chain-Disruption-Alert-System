@@ -1,0 +1,17 @@
+{
+  "version": "v1",
+  "model_type": "TF-IDF (unigrams+bigrams) + Logistic Regression",
+  "trained_at": "2025-01-01T00:00:00Z",
+  "data_hash": "pending-retrain-with-gold-labels",
+  "training_rows": 0,
+  "eval_set": "VADER-auto-labeled (circular — not a gold eval set)",
+  "accuracy": 0.0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1_score": 0.0,
+  "notes": "Baseline model from original prototype. Labels are VADER-auto-generated, NOT hand-labeled. Accuracy metrics are NOT defensible and intentionally set to 0.0 as placeholders. Phase 5 will produce a proper hand-labeled eval set and retrained model with real metrics. DO NOT quote these numbers in interviews.",
+  "artifacts": {
+    "model_file": "logistic_model.pkl",
+    "vectorizer_file": "tfidf_vectorizer.pkl"
+  }
+}

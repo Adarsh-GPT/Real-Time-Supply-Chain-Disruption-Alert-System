@@ -1,0 +1,101 @@
+{
+  "ports": [
+    {"id": "SHA", "name": "Port of Shanghai", "country": "China", "lat": 31.2304, "lng": 121.4737, "region": "East Asia", "volume_rank": 1},
+    {"id": "SIN", "name": "Port of Singapore", "country": "Singapore", "lat": 1.2644, "lng": 103.8200, "region": "Southeast Asia", "volume_rank": 2},
+    {"id": "RTM", "name": "Port of Rotterdam", "country": "Netherlands", "lat": 51.9225, "lng": 4.4792, "region": "Europe", "volume_rank": 11},
+    {"id": "LAX", "name": "Port of Los Angeles", "country": "USA", "lat": 33.7395, "lng": -118.2590, "region": "North America", "volume_rank": 9},
+    {"id": "HKG", "name": "Port of Hong Kong", "country": "China", "lat": 22.3193, "lng": 114.1694, "region": "East Asia", "volume_rank": 8},
+    {"id": "DXB", "name": "Port of Dubai (Jebel Ali)", "country": "UAE", "lat": 24.9857, "lng": 55.0587, "region": "Middle East", "volume_rank": 10},
+    {"id": "HAM", "name": "Port of Hamburg", "country": "Germany", "lat": 53.5753, "lng": 9.9882, "region": "Europe", "volume_rank": 18},
+    {"id": "KHH", "name": "Port of Kaohsiung", "country": "Taiwan", "lat": 22.6273, "lng": 120.3014, "region": "East Asia", "volume_rank": 15},
+    {"id": "PUS", "name": "Port of Busan", "country": "South Korea", "lat": 35.1796, "lng": 129.0756, "region": "East Asia", "volume_rank": 7},
+    {"id": "JFK", "name": "Port of New York", "country": "USA", "lat": 40.6840, "lng": -74.0741, "region": "North America", "volume_rank": 25},
+    {"id": "YOK", "name": "Port of Yokohama", "country": "Japan", "lat": 35.4437, "lng": 139.6380, "region": "East Asia", "volume_rank": 30},
+    {"id": "MUM", "name": "Port of Mumbai (JNPT)", "country": "India", "lat": 18.9438, "lng": 72.9352, "region": "South Asia", "volume_rank": 26},
+    {"id": "SZX", "name": "Port of Shenzhen", "country": "China", "lat": 22.5445, "lng": 114.0541, "region": "East Asia", "volume_rank": 4},
+    {"id": "HOC", "name": "Port of Ho Chi Minh City", "country": "Vietnam", "lat": 10.7769, "lng": 106.7009, "region": "Southeast Asia", "volume_rank": 35},
+    {"id": "ANT", "name": "Port of Antwerp", "country": "Belgium", "lat": 51.2194, "lng": 4.4025, "region": "Europe", "volume_rank": 14}
+  ],
+  "shipping_routes": [
+    {
+      "id": "asia_europe_suez",
+      "name": "Asia – Europe (via Suez)",
+      "description": "Main container route connecting East Asia to European ports",
+      "waypoints": [
+        [31.2304, 121.4737],
+        [22.3193, 114.1694],
+        [1.2644, 103.8200],
+        [6.5244, 79.8428],
+        [11.8635, 43.1450],
+        [29.9668, 32.5498],
+        [27.2760, 33.8129],
+        [24.9857, 55.0587],
+        [12.3622, 43.6061],
+        [11.3569, 43.1450],
+        [37.9838, 23.7275],
+        [40.4167, 18.1677],
+        [35.9490, 14.5146],
+        [36.8065, 10.1815],
+        [51.9225, 4.4792]
+      ]
+    },
+    {
+      "id": "trans_pacific",
+      "name": "Trans-Pacific (Asia – US West Coast)",
+      "description": "Largest container trade lane by volume",
+      "waypoints": [
+        [31.2304, 121.4737],
+        [35.4437, 139.6380],
+        [35.1796, 129.0756],
+        [37.0, 170.0],
+        [35.0, -160.0],
+        [20.0, -155.0],
+        [33.7395, -118.2590]
+      ]
+    },
+    {
+      "id": "asia_us_east_panama",
+      "name": "Asia – US East Coast (via Panama)",
+      "description": "Growing route post-Panama Canal expansion",
+      "waypoints": [
+        [31.2304, 121.4737],
+        [1.2644, 103.8200],
+        [15.0, 120.0],
+        [8.0, 160.0],
+        [5.0, -150.0],
+        [9.0, -79.5],
+        [8.9824, -79.5199],
+        [20.0, -70.0],
+        [40.6840, -74.0741]
+      ]
+    },
+    {
+      "id": "europe_americas",
+      "name": "Europe – Americas (North Atlantic)",
+      "description": "Classic transatlantic trade route",
+      "waypoints": [
+        [51.9225, 4.4792],
+        [53.5753, 9.9882],
+        [55.0, -5.0],
+        [45.0, -20.0],
+        [38.0, -40.0],
+        [30.0, -60.0],
+        [40.6840, -74.0741]
+      ]
+    },
+    {
+      "id": "middle_east_asia",
+      "name": "Middle East – Asia (Energy Route)",
+      "description": "Oil and LNG shipments from Gulf to Asia",
+      "waypoints": [
+        [26.2285, 56.3424],
+        [24.9857, 55.0587],
+        [12.3622, 43.6061],
+        [6.5244, 79.8428],
+        [1.2644, 103.8200],
+        [22.3193, 114.1694],
+        [31.2304, 121.4737]
+      ]
+    }
+  ]
+}

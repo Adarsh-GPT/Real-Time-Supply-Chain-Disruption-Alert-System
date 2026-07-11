@@ -1,0 +1,83 @@
+# config/thresholds.yaml — Risk scoring configuration
+
+# Hybrid score thresholds
+high_risk_threshold: 0.60
+medium_risk_threshold: 0.30
+
+# Component weights (vader + ml must sum to 1.0)
+weights:
+  vader: 0.35
+  ml_classifier: 0.45
+  watchlist_boost_max: 0.20   # bonus when watchlist item found
+
+# Recency decay
+recency:
+  decay_hours: 24
+  min_factor: 0.50
+
+# Disruption category keywords
+categories:
+  weather:
+    icon: "🌪️"
+    color: "#4FC3F7"
+    keywords: ["typhoon", "hurricane", "flood", "earthquake", "tsunami", "drought", "blizzard", "tornado", "cyclone", "storm", "wildfire"]
+  labor:
+    icon: "✊"
+    color: "#FF7043"
+    keywords: ["strike", "walkout", "protest", "union", "workers", "labor dispute", "picket", "industrial action", "lockout"]
+  geopolitical:
+    icon: "🏴"
+    color: "#EF5350"
+    keywords: ["sanctions", "war", "conflict", "military", "embargo", "tariff", "trade war", "ban", "invasion", "blockade", "political"]
+  infrastructure:
+    icon: "🏗️"
+    color: "#90A4AE"
+    keywords: ["port closure", "canal blocked", "bridge collapse", "rail disruption", "airport closed", "pipeline", "explosion", "fire", "shutdown", "outage"]
+  trade:
+    icon: "📋"
+    color: "#CE93D8"
+    keywords: ["tariff", "import ban", "export restriction", "quota", "duty", "customs", "regulation", "compliance"]
+  pandemic:
+    icon: "🦠"
+    color: "#4DB6AC"
+    keywords: ["covid", "pandemic", "outbreak", "quarantine", "lockdown", "disease", "virus", "contamination", "recall"]
+
+# Impact estimation rules (days of disruption)
+impact_rules:
+  port_closure:
+    keywords: ["port closure", "port closed", "port shut"]
+    days_min: 7
+    days_max: 21
+  strike:
+    keywords: ["strike", "walkout", "industrial action"]
+    days_min: 3
+    days_max: 14
+  typhoon_hurricane:
+    keywords: ["typhoon", "hurricane", "cyclone"]
+    days_min: 1
+    days_max: 7
+  earthquake:
+    keywords: ["earthquake", "tsunami"]
+    days_min: 14
+    days_max: 60
+  sanctions:
+    keywords: ["sanctions", "embargo"]
+    days_min: 30
+    days_max: 180
+  canal_blockage:
+    keywords: ["canal blocked", "suez", "panama canal"]
+    days_min: 5
+    days_max: 21
+  factory_shutdown:
+    keywords: ["factory shutdown", "plant closure", "production halt"]
+    days_min: 7
+    days_max: 30
+  shortage:
+    keywords: ["shortage", "supply crunch", "supply gap"]
+    days_min: 14
+    days_max: 45
+
+# Default impact when no specific rule matches
+default_impact:
+  days_min: 3
+  days_max: 10

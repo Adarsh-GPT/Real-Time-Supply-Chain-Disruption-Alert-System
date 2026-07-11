@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // DEFAULT DENY ALL (Maximum Security)
+    // Streamlit Cloud / Local Worker runs Python with the Firebase Admin SDK.
+    // The Admin SDK automatically bypasses all security rules securely.
+    // Therefore, we can safely block ALL public web/mobile access to prevent hackers 
+    // from reading or writing to our database using our public Project ID.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

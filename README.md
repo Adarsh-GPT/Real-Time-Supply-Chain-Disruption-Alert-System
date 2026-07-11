@@ -1,135 +1,94 @@
-# 🚨 Real-Time Supply Chain Disruption Alert System
-<img width="1024" height="586" alt="banner" src="https://github.com/user-attachments/assets/ca9a1cbf-5bd0-452d-94b8-8d8b034e0aca" />
+# 📡 SupplyRadar
 
+> **Real-Time, AI-Powered Supply Chain Intelligence Platform**
 
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.35.0-FF4B4B)
+![Firebase](https://img.shields.io/badge/Firebase-Secure-FFCA28)
+![NLTK](https://img.shields.io/badge/NLP-NLTK%20%7C%20VADER-success)
 
-A real-time NLP and Machine Learning–based system that analyzes news headlines to detect potential supply chain disruptions and classify them into business risk levels. The project combines lexicon-based sentiment analysis with supervised machine learning and presents insights through an interactive dashboard.
+SupplyRadar is a decoupled, enterprise-grade application that ingests global news in real-time, processes it using Natural Language Processing (NLP), and calculates personalized risk scores for supply chain disruptions based on user-defined watchlists. 
 
-
----
-
-## 📌 Overview
-
-Supply chains are highly sensitive to external events such as strikes, geopolitical tensions, natural disasters, and trade restrictions. News headlines often act as early indicators of such disruptions.
-
-This project automatically ingests news headlines, analyzes their sentiment, maps them to risk levels, and displays the results on a secure, real-time dashboard to help businesses make faster, data-driven decisions.
+Instead of reading generic news, Supply Chain Managers receive immediate, actionable intelligence when *their specific* suppliers, ports, or commodities are affected.
 
 ---
 
-## 🎯 Objectives
+## ✨ Key Features
 
-- Detect early warning signals of supply chain disruptions from news headlines  
-- Classify headlines into **Low, Medium, and High Risk** categories  
-- Combine rule-based sentiment analysis with machine learning for better accuracy  
-- Provide an interactive and secure dashboard for real-time monitoring  
-
----
-
-## 🧠 Methodology
-
-1. **Data Ingestion**
-   - Headlines collected from **NewsAPI** and **The Guardian API**
-   - Historical data sourced from the **India News Headlines Dataset (Kaggle)**
-
-2. **Text Cleaning & Preprocessing**
-   - Lowercasing, URL removal, punctuation removal
-   - Tokenization, stemming, and lemmatization using NLTK
-
-3. **Sentiment Analysis & Risk Mapping**
-   - VADER sentiment analysis generates compound polarity scores
-   - Scores mapped to business risk levels:
-     - Negative → High Risk  
-     - Neutral → Medium Risk  
-     - Positive → Low Risk  
-
-4. **Machine Learning Model**
-   - TF-IDF vectorization (unigrams + bigrams)
-   - Logistic Regression classifier
-   - Weak supervision using VADER-generated auto-labels
-
-5. **Visualization & Deployment**
-   - Interactive **Streamlit dashboard**
-   - Real-time sentiment gauge and ML predictions
-   - Secure authentication using **Firebase**
+- **Personalized Watchlists**: Users can specify exact companies (e.g., TSMC), ports (e.g., Shanghai), and commodities (e.g., Lithium) to track.
+- **NLP Risk Engine**: Utilizes NLTK and VADER Sentiment Analysis to compute a "Hybrid Risk Score" by cross-referencing global events with the user's watchlist.
+- **Decoupled Architecture**: 
+  - **Headless Worker**: A background daemon (`worker.py`) constantly ingests, cleans, and scores data without blocking the UI.
+  - **Lightning-Fast UI**: A decoupled Streamlit frontend that simply reads processed data from Firebase, completely avoiding API rate limits and loading latency.
+- **Geospatial Mapping**: Interactive Folium maps to visualize where high-risk disruptions are geographically clustered.
+- **Instant Telegram Alerts**: Push notifications sent instantly to users when a critical (High Risk) event occurs.
+- **Executive PDF Summaries**: Dynamically generated, sanitized PDF reports using `FPDF2` for stakeholders.
 
 ---
 
-## 📊 Key Features
+## 🏗️ Architecture
 
-- Real-time headline analysis  
-- Hybrid approach: VADER + Machine Learning  
-- Interactive sentiment gauge visualization  
-- Keyword-based headline search  
-- Secure login and access control  
-- Lightweight and fast model performance  
+SupplyRadar has evolved from a monolithic PoC into a robust, event-driven architecture:
 
----
+```mermaid
+graph TD
+    NewsAPI(Live News APIs) --> Worker
+    Worker(Python Background Worker) --> NLP(NLP & Scoring Engine)
+    NLP --> Firebase[(Firebase Firestore)]
+    Worker --> Telegram((Telegram Bot API))
+    
+    Firebase <--> UI(Streamlit Dashboard)
+    UI --> PDF(PDF Report Generator)
+```
 
-## 📈 Results
+## 🔐 Security 
 
-- Achieved ~**80% accuracy** on supply-chain–focused test data  
-- Balanced precision, recall, and F1-score across classes  
-- ML model captured domain-specific patterns beyond lexicon rules  
-- Dashboard updates instantly without page reloads  
-
----
-
-## ⚙️ Tools & Technologies
-
-### Programming Language
-- **Python**
-
-### Libraries & Frameworks
-- `pandas`, `numpy` – Data handling
-- `nltk`, `vaderSentiment` – Text processing & sentiment analysis
-- `scikit-learn` – TF-IDF, Logistic Regression, evaluation
-- `streamlit` – Dashboard development
-- `firebase_admin` – Authentication
-- `requests` – API communication
-
-### Development Environment
-- **VS Code**
-- **Jupyter Notebook**
-- CPU-based execution (GPU optional)
+This project implements strict database security:
+- **Client-Side Auth**: Users authenticate securely via the Firebase REST API.
+- **Firestore Rules**: All public R/W access is locked (`allow read, write: if false;`).
+- **Backend Admin SDK**: Both the Streamlit frontend and the background worker communicate with Firebase via secure, server-side Service Account Credentials.
 
 ---
 
-## 🚀 How It Works (High-Level Flow)
+## 🚀 Quickstart
 
-1. Fetch latest headlines via APIs  
-2. Clean and preprocess text  
-3. Generate sentiment scores and risk labels  
-4. Predict disruption risk using ML model  
-5. Visualize insights on the Streamlit dashboard  
+### 1. Prerequisites
+- Python 3.10+
+- A Free Firebase Project (with Email/Password Auth and Firestore enabled)
+- API Keys for NewsAPI and Telegram (optional)
+
+### 2. Installation
+Clone the repository and install dependencies:
+```bash
+git clone https://github.com/your-username/SupplyRadar.git
+cd SupplyRadar
+pip install -r requirements.txt
+python -m nltk.downloader punkt vader_lexicon
+```
+
+### 3. Configuration
+1. Create a `.env` file based on `.env.example`.
+2. Add your `firebase-credentials.json` to the root directory.
+3. Deploy the `firestore.rules` file to your Firebase console.
+
+### 4. Running the Platform
+
+**Start the Background Worker (Daemon)**
+This handles data ingestion and push notifications asynchronously:
+```bash
+python worker.py
+```
+
+**Start the User Interface**
+In a separate terminal, launch the Streamlit frontend:
+```bash
+streamlit run app.py
+```
 
 ---
 
-## 🔮 Future Scope
+## 👨‍💻 Contributing
+Contributions are welcome! Please feel free to submit a Pull Request. If you plan on implementing a major feature (like replacing VADER with an LLM for extraction), please open an issue first to discuss the architecture.
 
-- Manual labeling for higher-quality training data  
-- Multilingual news support  
-- Advanced models (XGBoost, BERT, LSTM)  
-- Entity-based risk analysis (ports, countries, companies)  
-- Alert notifications via email or messaging platforms  
-
----
-
-## 📚 References
-
-- India Headlines News Dataset (Kaggle)  
-- VADER Sentiment Analysis (Hutto & Gilbert, 2014)  
-- Scikit-learn Documentation  
-- NewsAPI & The Guardian Open Platform  
-- Streamlit & Firebase Documentation  
-
----
-
-## 👤 Author
-
-**Adarsh (Adi) Kore**  
-B.Sc. Data Science  
-Aspiring Data Analyst / Data Scientist  
-
----
-
-⭐ *If you find this project useful, consider giving it a star!* ⭐
+## 📄 License
+This project is licensed under the MIT License.

@@ -1,0 +1,98 @@
+# config/industries.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+# Industry-specific configurations for SupplyRadar.
+# Each industry has a default watchlist that pre-populates on first login.
+# Users can modify their watchlist anytime from the Settings page.
+# ─────────────────────────────────────────────────────────────────────────────
+
+industries:
+
+  electronics:
+    name: "Electronics & Semiconductors"
+    icon: "💻"
+    description: "Chips, displays, components manufacturing"
+    default_watchlist:
+      companies: ["TSMC", "Samsung", "Foxconn", "Apple", "Intel", "Qualcomm", "SK Hynix", "Micron"]
+      ports: ["Shanghai", "Kaohsiung", "Busan", "Yokohama", "Shenzhen"]
+      commodities: ["Semiconductors", "Chips", "Lithium", "Rare Earth Metals", "Copper", "Palladium"]
+      countries: ["Taiwan", "China", "South Korea", "Japan", "Vietnam"]
+    critical_risk_categories: ["geopolitical", "infrastructure", "labor"]
+    key_risks:
+      - "Taiwan Strait tensions impacting TSMC production"
+      - "Chinese export controls on rare earth metals"
+      - "Semiconductor fab power shortages"
+
+  automotive:
+    name: "Automotive"
+    icon: "🚗"
+    description: "Vehicle manufacturing, components, EV batteries"
+    default_watchlist:
+      companies: ["Toyota", "Volkswagen", "BMW", "Bosch", "Continental", "CATL", "LG Energy"]
+      ports: ["Hamburg", "Rotterdam", "Yokohama", "Busan", "Baltimore"]
+      commodities: ["Steel", "Aluminum", "Semiconductors", "Palladium", "Lithium", "Cobalt"]
+      countries: ["Germany", "Japan", "China", "Mexico", "USA", "South Korea"]
+    critical_risk_categories: ["labor", "geopolitical", "weather"]
+    key_risks:
+      - "Semiconductor shortage disrupting production lines"
+      - "Battery metal price volatility"
+      - "Just-in-time supply disruptions"
+
+  pharma:
+    name: "Pharmaceuticals & Healthcare"
+    icon: "💊"
+    description: "Drug manufacturing, APIs, medical devices"
+    default_watchlist:
+      companies: ["Pfizer", "AstraZeneca", "Teva", "Sun Pharma", "Dr. Reddy's", "Divi's Labs"]
+      ports: ["Mumbai", "Shanghai", "Rotterdam", "New York", "Frankfurt"]
+      commodities: ["Active Pharmaceutical Ingredients", "Excipients", "Vials", "Chemical Precursors"]
+      countries: ["India", "China", "Germany", "USA", "Ireland"]
+    critical_risk_categories: ["regulatory", "geopolitical", "infrastructure"]
+    key_risks:
+      - "API supply concentration in India and China"
+      - "FDA/EMA import alerts on key suppliers"
+      - "Cold chain disruptions"
+
+  food_beverage:
+    name: "Food & Beverage"
+    icon: "🌾"
+    description: "Agricultural commodities, processed foods, beverages"
+    default_watchlist:
+      companies: ["Cargill", "ADM", "Bunge", "Nestlé", "Unilever", "Kraft Heinz"]
+      ports: ["Santos", "New Orleans", "Rotterdam", "Dubai", "Buenos Aires"]
+      commodities: ["Wheat", "Sugar", "Palm Oil", "Soybeans", "Coffee", "Cocoa", "Corn"]
+      countries: ["Ukraine", "Brazil", "Argentina", "USA", "Indonesia", "Russia"]
+    critical_risk_categories: ["weather", "geopolitical", "trade"]
+    key_risks:
+      - "Drought/flood impacts on crop yields"
+      - "Black Sea corridor disruptions (wheat)"
+      - "Palm oil export restrictions (Indonesia)"
+
+  energy:
+    name: "Energy & Oil & Gas"
+    icon: "⚡"
+    description: "Oil, gas, LNG, renewable energy supply chains"
+    default_watchlist:
+      companies: ["Saudi Aramco", "Shell", "ExxonMobil", "BP", "TotalEnergies", "Gazprom"]
+      ports: ["Ras Tanura", "Rotterdam", "Houston", "Singapore", "Fujairah"]
+      commodities: ["Crude Oil", "LNG", "Natural Gas", "Coal", "Uranium"]
+      countries: ["Saudi Arabia", "Russia", "USA", "UAE", "Qatar", "Norway"]
+    critical_risk_categories: ["geopolitical", "infrastructure", "trade"]
+    key_risks:
+      - "OPEC production cut decisions"
+      - "Strait of Hormuz disruptions"
+      - "Russian energy sanctions"
+
+  retail_fmcg:
+    name: "Retail & FMCG"
+    icon: "🛒"
+    description: "Consumer goods, apparel, fast-moving consumer products"
+    default_watchlist:
+      companies: ["Walmart", "Amazon", "H&M", "Nike", "Adidas", "Procter & Gamble", "Zara"]
+      ports: ["Shanghai", "Ho Chi Minh City", "Los Angeles", "Rotterdam", "Colombo"]
+      commodities: ["Cotton", "Plastics", "Polyester", "Electronics Components", "Packaging"]
+      countries: ["China", "Vietnam", "Bangladesh", "India", "Cambodia", "Indonesia"]
+    critical_risk_categories: ["labor", "trade", "weather"]
+    key_risks:
+      - "Asian factory labor strikes"
+      - "Trans-Pacific shipping rate spikes"
+      - "Port congestion at LA/Long Beach"

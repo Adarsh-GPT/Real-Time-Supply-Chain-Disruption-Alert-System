@@ -1,0 +1,64 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .gitignore — Real-Time Supply Chain Disruption Alert System
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+firebase-credentials.json
+*-credentials.json
+*-service-account.json
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# ── Data files (raw + processed CSVs — too large for git, fetched at runtime) ─
+data/*.csv
+data/testing/
+ml_training/label_studio_export/*.csv
+
+# ── Model artifacts (versioned separately, not committed to git) ──────────────
+# Note: models/v1/metadata.json IS committed (it's config, not binary)
+models/**/*.pkl
+models/**/*.joblib
+models/**/*.bin
+models/**/*.pt
+
+# ── Test / Coverage artifacts ─────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ── Linting / Type checking ───────────────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Streamlit ─────────────────────────────────────────────────────────────────
+.streamlit/secrets.toml
