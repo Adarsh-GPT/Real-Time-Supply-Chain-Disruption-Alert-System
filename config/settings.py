@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     firebase_api_key: str = Field(default="")
     firebase_project_id: str = Field(default="")
     firebase_credentials_path: Path = Field(default=PROJECT_ROOT / "firebase-credentials.json")
+    firebase_credentials_json: str = Field(default="")
 
     # News APIs
     newsapi_key: str = Field(default="")

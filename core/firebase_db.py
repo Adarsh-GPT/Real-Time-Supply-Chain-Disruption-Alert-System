@@ -99,8 +99,16 @@ def _get_db():
         from firebase_admin import credentials, firestore as fs
 
         if not firebase_admin._apps:
+            import json
             cred_path = settings.firebase_credentials_path
-            if cred_path.exists():
+            
+            if settings.firebase_credentials_json:
+                # Load from environment variable (useful for cloud deployments)
+                cred_dict = json.loads(settings.firebase_credentials_json)
+                cred = credentials.Certificate(cred_dict)
+                firebase_admin.initialize_app(cred, {"projectId": settings.firebase_project_id})
+            elif cred_path.exists():
+                # Load from local JSON file
                 cred = credentials.Certificate(str(cred_path))
                 firebase_admin.initialize_app(cred, {"projectId": settings.firebase_project_id})
             else:
