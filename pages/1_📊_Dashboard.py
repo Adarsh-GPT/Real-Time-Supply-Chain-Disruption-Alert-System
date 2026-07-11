@@ -30,14 +30,19 @@ html,body,[class*="css"]{font-family:'Inter',sans-serif;}
     background: var(--secondary-background-color);
     border-radius: 10px;
     padding: 16px 20px;
-    margin: 8px 0;
-    border-left: 4px solid;
-    transition: transform 0.2s;
+    margin: 12px 0;
+    border: 1px solid var(--border-color);
+    border-left: 5px solid;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-.risk-card:hover { transform: translateX(4px); }
-.risk-high { border-color: #FF4B4B; background: linear-gradient(90deg, rgba(255,75,75,0.08) 0%, var(--secondary-background-color) 100%); }
-.risk-medium { border-color: #FFD600; background: linear-gradient(90deg, rgba(255,214,0,0.08) 0%, var(--secondary-background-color) 100%); }
-.risk-low { border-color: #00C853; background: linear-gradient(90deg, rgba(0,200,83,0.06) 0%, var(--secondary-background-color) 100%); }
+.risk-card:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+}
+.risk-high { border-left-color: #FF4B4B; }
+.risk-medium { border-left-color: #FFD600; }
+.risk-low { border-left-color: #00C853; }
 
 .badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; margin-right:6px; }
 .badge-high { background:rgba(255,75,75,0.2); color:#FF4B4B; border:1px solid #FF4B4B; }
@@ -45,7 +50,9 @@ html,body,[class*="css"]{font-family:'Inter',sans-serif;}
 .badge-low { background:rgba(0,200,83,0.15); color:#00C853; border:1px solid #00C853; }
 .badge-watchlist { background:rgba(100,181,246,0.2); color:#64b5f6; border:1px solid #64b5f6; }
 
-.headline-text { font-size: 1rem; font-weight: 600; color: var(--text-color); margin-bottom: 6px; }
+.headline-text { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+.headline-link { color: var(--text-color); text-decoration: none; transition: color 0.2s; }
+.headline-link:hover { color: var(--primary-color); text-decoration: none; }
 .meta-row { font-size: 0.78rem; color: #8899aa; }
 .impact-text { font-size: 0.82rem; margin-top: 6px; }
 </style>
@@ -186,7 +193,7 @@ else:
         if matched_items:
             watchlist_badge = f'<span class="badge badge-watchlist">🎯 {", ".join(matched_items)}</span>'
 
-        headline_link = f'<a href="{url}" target="_blank" style="color:inherit;text-decoration:underline;text-underline-offset:4px;">{article.get("raw_text","")} 🔗</a>' if url else article.get("raw_text", "")
+        headline_link = f'<a href="{url}" class="headline-link" target="_blank">{article.get("raw_text","")}</a>' if url else article.get("raw_text", "")
 
         html_content = f"""<div class="risk-card {css_class}">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
