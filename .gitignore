@@ -29,6 +29,7 @@ ENV/
 
 # ── Data files (raw + processed CSVs — too large for git, fetched at runtime) ─
 data/*.csv
+data/*.json
 data/testing/
 ml_training/label_studio_export/*.csv
 

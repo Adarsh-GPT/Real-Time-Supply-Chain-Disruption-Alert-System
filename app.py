@@ -15,47 +15,75 @@ st.set_page_config(
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
 
-html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+/* Animated Premium Dark Gradient Background */
+.stApp {
+    background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #172554);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
+html, body, [class*="css"] { 
+    font-family: 'Outfit', sans-serif; 
+}
+
+/* Glassmorphism Container */
 .login-container {
-    max-width: 460px;
+    max-width: 480px;
     margin: 0 auto;
-    padding: 2.5rem;
-    background: var(--secondary-background-color);
-    border-radius: 16px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    padding: 3rem;
+    background: rgba(15, 23, 42, 0.7) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
 }
 
 .logo-text {
-    font-size: 2.4rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #FF4B4B, #ff8c42);
+    font-size: 2.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-align: center;
     margin-bottom: 0.2rem;
+    letter-spacing: -1px;
 }
 
 .logo-sub {
     text-align: center;
-    color: #8899aa;
-    font-size: 0.9rem;
-    margin-bottom: 2rem;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.5px;
 }
 
+/* Interactive Industry Cards */
 .industry-card {
-    background: var(--background-color);
-    border: 2px solid transparent;
-    border-radius: 10px;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
     padding: 12px 16px;
     margin: 6px 0;
     cursor: pointer;
-    transition: all 0.2s;
+    color: #e2e8f0;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.industry-card:hover { border-color: var(--primary-color); }
+.industry-card:hover { 
+    border-color: #38bdf8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(56, 189, 248, 0.2);
+    background: rgba(30, 41, 59, 0.8);
+}
 
 .error-box {
     background: rgba(255,75,75,0.1);
@@ -127,12 +155,23 @@ with col2:
                     st.session_state.authenticated = True
                     st.session_state.uid = "demo-user"
                     st.session_state.email = email_in
-                    st.session_state.user_profile = {
-                        "name": "Demo User",
-                        "industry": "electronics",
-                        "industry_name": "Electronics & Semiconductors",
-                    }
-                    wl = INDUSTRIES["electronics"]["default_watchlist"]
+                    
+                    # Fetch from local demo DB if exists, otherwise fallback to parsing email
+                    from core.demo_db import get_demo_user
+                    user_data = get_demo_user(email_in)
+                    
+                    if user_data:
+                        st.session_state.user_profile = user_data["profile"]
+                        st.session_state.watchlist = user_data["watchlist"]
+                    else:
+                        name_prefix = email_in.split("@")[0].replace(".", " ").title() if email_in else "User"
+                        st.session_state.user_profile = {
+                            "name": name_prefix,
+                            "industry": "hospitality_procurement",
+                            "industry_name": "Hospitality & Procurement",
+                        }
+                        st.session_state.watchlist = INDUSTRIES["hospitality_procurement"]["default_watchlist"]
+                    wl = INDUSTRIES["hospitality_procurement"]["default_watchlist"]
                     st.session_state.watchlist = wl
                     st.switch_page("pages/1_📊_Dashboard.py")
                 else:
@@ -145,7 +184,7 @@ with col2:
                         st.session_state.id_token = user["id_token"]
                         profile = get_user_profile(user["uid"]) or {}
                         st.session_state.user_profile = profile
-                        industry_id = profile.get("industry", "electronics")
+                        industry_id = profile.get("industry", "hospitality_procurement")
                         default_wl = INDUSTRIES.get(industry_id, {}).get("default_watchlist", {})
                         stored_wl = get_watchlist(user["uid"])
                         st.session_state.watchlist = stored_wl if any(stored_wl.values()) else default_wl
@@ -196,16 +235,24 @@ with col2:
             else:
                 from config.settings import settings
                 if not settings.has_firebase:
-                    st.markdown('<div class="success-box">✅ Demo account created! Signing you in...</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="success-box">✅ Account created! Signing you in...</div>', unsafe_allow_html=True)
                     st.session_state.authenticated = True
                     st.session_state.uid = "demo-user"
                     st.session_state.email = r_email
-                    st.session_state.user_profile = {
+                    
+                    profile = {
                         "name": r_name,
                         "industry": selected_industry,
                         "industry_name": INDUSTRIES[selected_industry]["name"],
                     }
-                    st.session_state.watchlist = INDUSTRIES[selected_industry]["default_watchlist"]
+                    wl = INDUSTRIES[selected_industry]["default_watchlist"]
+                    
+                    # Save persistently to local Demo DB
+                    from core.demo_db import save_demo_user
+                    save_demo_user(r_email, profile, wl)
+                    
+                    st.session_state.user_profile = profile
+                    st.session_state.watchlist = wl
                     st.switch_page("pages/1_📊_Dashboard.py")
                 else:
                     try:

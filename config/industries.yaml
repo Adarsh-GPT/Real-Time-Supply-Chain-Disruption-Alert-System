@@ -7,6 +7,21 @@
 
 industries:
 
+  hospitality_procurement:
+    name: "Hospitality & Procurement"
+    icon: "🏨"
+    description: "Hotel operations, F&B, linens, and cleaning supplies"
+    default_watchlist:
+      companies: ["Marriott International", "Sysco", "Ecolab", "US Foods", "Hilton", "Hyatt"]
+      ports: ["Miami", "Los Angeles", "Rotterdam", "Shanghai", "New York"]
+      commodities: ["Linens", "Food & Beverage", "Cleaning Supplies", "Furniture", "Coffee", "Meat"]
+      countries: ["USA", "China", "Mexico", "Canada", "Brazil"]
+    critical_risk_categories: ["weather", "labor", "infrastructure"]
+    key_risks:
+      - "Food supply shortages due to severe weather"
+      - "Linen and furniture manufacturing disruptions in Asia"
+      - "Labor strikes at major distribution hubs"
+
   electronics:
     name: "Electronics & Semiconductors"
     icon: "💻"

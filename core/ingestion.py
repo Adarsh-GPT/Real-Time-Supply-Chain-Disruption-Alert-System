@@ -64,41 +64,56 @@ def _fetch_newsapi(query: str, days_back: int = 1) -> list[dict]:
     return results
 
 
+import xml.etree.ElementTree as ET
+import urllib.parse
+
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=2, max=10))
-def _fetch_guardian(query: str, days_back: int = 1) -> list[dict]:
-    """Fetch from The Guardian API (free, no daily limit for modest use)."""
-    if not settings.guardian_key:
-        return []
-    from_date = (datetime.now(timezone.utc) - timedelta(days=days_back)).strftime("%Y-%m-%d")
-    url = "https://content.guardianapis.com/search"
-    params = {
-        "q": query,
-        "from-date": from_date,
-        "order-by": "newest",
-        "page-size": settings.max_articles_per_source,
-        "show-fields": "headline,trailText,shortUrl",
-        "api-key": settings.guardian_key,
-    }
-    resp = requests.get(url, params=params, timeout=10)
+def _fetch_google_news_rss(query: str, days_back: int = 1) -> list[dict]:
+    """Fetch from Google News RSS (Free, no API key required)."""
+    # Google News RSS format: https://news.google.com/rss/search?q={query}+when:{days_back}d
+    encoded_query = urllib.parse.quote(f"{query} when:{days_back}d")
+    url = f"https://news.google.com/rss/search?q={encoded_query}&hl=en-US&gl=US&ceid=US:en"
+    
+    resp = requests.get(url, timeout=10)
     resp.raise_for_status()
-    items = resp.json().get("response", {}).get("results", [])
+    
+    try:
+        root = ET.fromstring(resp.content)
+    except ET.ParseError as e:
+        log.error("Failed to parse Google News RSS XML: %s", e)
+        return []
+
     results = []
-    for item in items:
-        fields = item.get("fields", {})
-        title = (fields.get("headline") or item.get("webTitle") or "").strip()
+    # Items are inside the <channel> tag
+    for item in root.findall('./channel/item'):
+        title = (item.findtext('title') or "").strip()
         if not title:
             continue
+            
+        link = item.findtext('link') or ""
+        pub_date_str = item.findtext('pubDate') or ""
+        
+        # Parse pubDate (e.g., "Wed, 16 Jul 2026 10:00:00 GMT")
+        try:
+            pub_date = datetime.strptime(pub_date_str, "%a, %d %b %Y %H:%M:%S %Z").replace(tzinfo=timezone.utc).isoformat()
+        except Exception:
+            pub_date = datetime.now(timezone.utc).isoformat()
+            
         results.append({
             "id": make_hash(title),
-            "source": "TheGuardian",
-            "source_name": "The Guardian",
+            "source": "GoogleNewsRSS",
+            "source_name": item.findtext('source') or "Google News",
             "raw_text": title,
-            "description": (fields.get("trailText") or "")[:300],
-            "url": fields.get("shortUrl") or item.get("webUrl", ""),
-            "published_at": item.get("webPublicationDate", datetime.now(timezone.utc).isoformat()),
+            "description": "", # RSS descriptions are usually just HTML snippets of the title
+            "url": link,
+            "published_at": pub_date,
             "ingested_at": datetime.now(timezone.utc).isoformat(),
         })
-    log.info("Guardian returned %d articles", len(results))
+        
+        if len(results) >= settings.max_articles_per_source:
+            break
+            
+    log.info("Google News RSS returned %d articles", len(results))
     return results
 
 
@@ -149,9 +164,9 @@ def fetch_all_sources(query: str = SUPPLY_CHAIN_QUERY, days_back: int = 1) -> li
         log.warning("NewsAPI fetch failed: %s", e)
 
     try:
-        all_articles.extend(_fetch_guardian(query, days_back))
+        all_articles.extend(_fetch_google_news_rss(query, days_back))
     except Exception as e:
-        log.warning("Guardian fetch failed: %s", e)
+        log.warning("Google News RSS fetch failed: %s", e)
 
     try:
         all_articles.extend(_fetch_gnews(query))

@@ -49,7 +49,7 @@ with st.spinner("Loading map data..."):
 # ── Process risks per port ────────────────────────────────────────────────────
 port_risks = {}
 for p_name, p_data in PORTS.items():
-    port_risks[p_name] = {"lat": p_data["lat"], "lng": p_data["lng"], "high": 0, "medium": 0, "low": 0, "articles": []}
+    port_risks[p_name] = {"lat": p_data["lat"], "lng": p_data["lng"], "high": 0, "medium": 0, "low": 0, "articles": [], "volume_rank": p_data.get("volume_rank", 999)}
 
 for a in articles:
     text_lower = a.get("raw_text", "").lower()
@@ -86,9 +86,9 @@ with col1:
         for route in map_data.get("shipping_routes", []):
             folium.PolyLine(
                 locations=route["waypoints"],
-                color="#4a5568",
+                color="#00C853", # Neon green for shipping routes to look futuristic
                 weight=2,
-                opacity=0.6,
+                opacity=0.4,
                 tooltip=route["name"]
             ).add_to(m)
 
@@ -98,21 +98,29 @@ with col1:
         if total_alerts == 0 and not show_safe_ports:
             continue
             
+        rank = data.get("volume_rank", 999)
+        
+        # Determine color based on highest risk
         if data["high"] > 0:
-            color = "#FF4B4B"
-            radius = 10 + (data["high"] * 2)
+            color = "#FF0000"
+            icon_color = "red"
+            risk_multiplier = data["high"] * 2
         elif data["medium"] > 0:
-            color = "#FFD600"
-            radius = 8 + (data["medium"] * 2)
+            color = "#FFA500"
+            icon_color = "orange"
+            risk_multiplier = data["medium"] * 2
         elif data["low"] > 0:
-            color = "#00C853"
-            radius = 6
+            color = "#008000"
+            icon_color = "green"
+            risk_multiplier = 0
         else:
-            color = "#4a5568"
-            radius = 4
+            color = "#3388ff"
+            icon_color = "blue"
+            risk_multiplier = 0
 
         html_popup = f"<div style='font-family:sans-serif;width:250px'>"
         html_popup += f"<h4>{p_name}</h4>"
+        html_popup += f"<div style='color:#bbb;font-size:13px;margin-bottom:8px'>Global Volume Rank: #{rank if rank != 999 else 'N/A'}</div>"
         if total_alerts > 0:
             html_popup += f"<b>Alerts:</b> 🔴 {data['high']} &nbsp; 🟡 {data['medium']} &nbsp; 🟢 {data['low']}<br><hr>"
             for a in data["articles"][:3]:  # show top 3
@@ -122,16 +130,35 @@ with col1:
         else:
             html_popup += "No active alerts."
         html_popup += "</div>"
+        
+        popup_obj = folium.Popup(html_popup, max_width=300)
 
-        folium.CircleMarker(
-            location=[data["lat"], data["lng"]],
-            radius=min(radius, 25),  # cap size
-            color=color,
-            fill=True,
-            fill_color=color,
-            fill_opacity=0.7,
-            popup=folium.Popup(html_popup, max_width=300),
-            tooltip=p_name
-        ).add_to(m)
+        # Apply specific markers based on port rank
+        if rank <= 5:
+            # MEGA PORT: Unique sign (Star marker)
+            folium.Marker(
+                location=[data["lat"], data["lng"]],
+                icon=folium.Icon(icon="star", prefix="fa", color=icon_color),
+                popup=popup_obj,
+                tooltip=f"⭐ MEGA PORT: {p_name}"
+            ).add_to(m)
+        elif rank <= 15:
+            # NORMAL/LARGE PORT: Standard CircleMarker
+            base_radius = 12
+            folium.CircleMarker(
+                location=[data["lat"], data["lng"]],
+                radius=min(base_radius + risk_multiplier, 30),
+                color="black", weight=1, fill=True, fill_color=color, fill_opacity=0.8,
+                popup=popup_obj, tooltip=f"🚢 {p_name}"
+            ).add_to(m)
+        else:
+            # SMALL PORT: Smaller CircleMarker
+            base_radius = 6
+            folium.CircleMarker(
+                location=[data["lat"], data["lng"]],
+                radius=min(base_radius + risk_multiplier, 20),
+                color="black", weight=1, fill=True, fill_color=color, fill_opacity=0.8,
+                popup=popup_obj, tooltip=p_name
+            ).add_to(m)
 
     st_folium(m, width=1000, height=600, returned_objects=[])

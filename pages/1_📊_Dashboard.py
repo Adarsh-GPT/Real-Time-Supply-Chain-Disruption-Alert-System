@@ -64,7 +64,7 @@ st_autorefresh(interval=15 * 60 * 1000, key="dashboard_refresh")
 
 # ── Fetch Data Function ───────────────────────────────────────────────────────
 @st.cache_data(ttl=60, show_spinner=False)
-def get_dashboard_data():
+def get_dashboard_data(search_query: str = ""):
     from config.settings import settings
     if settings.has_firebase:
         from core.firebase_db import get_recent_articles
@@ -72,16 +72,21 @@ def get_dashboard_data():
     else:
         from core.ingestion import fetch_all_sources
         from core.processor import process_batch
-        return process_batch(fetch_all_sources())
+        # days_back=0 forces it to fetch news strictly from today (live)
+        from core.ingestion import SUPPLY_CHAIN_QUERY
+        final_query = search_query if search_query else SUPPLY_CHAIN_QUERY
+        return process_batch(fetch_all_sources(query=final_query, days_back=0))
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     profile = st.session_state.get("user_profile", {})
     st.markdown(f"### 👋 {profile.get('name', 'User')}")
-    st.caption(f"🏭 {profile.get('industry_name', 'All Industries')}")
+    industry_name = profile.get('industry_name', 'All Industries')
+    st.caption(f"🏭 {industry_name}")
     st.markdown("---")
     
-    st.markdown("**Filter Results**")
+    st.markdown("**Filters**")
+    
     filter_risk = st.multiselect(
         "Risk Level",
         ["High", "Medium", "Low"],
@@ -104,7 +109,7 @@ with st.sidebar:
     watchlist_only = st.toggle("🎯 Watchlist matches only", value=False)
     
     st.markdown("---")
-    if st.button("🔄 Refresh View", use_container_width=True):
+    if st.button("🔄 Fetch Latest News (15+ Items)", type="primary", use_container_width=True):
         get_dashboard_data.clear()
         st.rerun()
     
@@ -115,7 +120,14 @@ with st.sidebar:
 
 
 with st.spinner("Loading live data from secure cloud..."):
-    articles = get_dashboard_data()
+    # Smart dynamic query: Fetches news relevant to the user's specific industry + supply chain/disruptions
+    industry_term = industry_name.replace("&", "").strip() if industry_name != "All Industries" else ""
+    if industry_term:
+        dynamic_query = f'"{industry_term}" AND (supply chain OR disruption OR logistics OR shipping)'
+    else:
+        dynamic_query = ""
+        
+    articles = get_dashboard_data(dynamic_query)
 
 # Re-score against the logged-in user's watchlist so their dashboard shows personalized hits
 from core.risk_engine import score_batch
@@ -174,6 +186,10 @@ if not filtered:
     st.info("No articles match your current filters. Adjust the sidebar filters.")
 else:
     st.markdown(f"### Showing {len(filtered)} disruption events")
+    
+    # Sort so that watchlist/industry matches are at the top
+    filtered = sorted(filtered, key=lambda x: x.get("watchlist_match", {}).get("is_watchlist_hit", False), reverse=True)
+    
     for article in filtered:
         risk_level = article.get("risk_level", "Low")
         cat = article.get("category", {})
@@ -190,7 +206,10 @@ else:
         risk_icon = article.get("risk_icon", "⚪")
 
         watchlist_badge = ""
-        if matched_items:
+        is_hit = wl.get("is_watchlist_hit", False)
+        if is_hit and matched_items:
+            watchlist_badge = f'<span class="badge badge-watchlist">🔥 Industry Match: {", ".join(matched_items)}</span>'
+        elif matched_items:
             watchlist_badge = f'<span class="badge badge-watchlist">🎯 {", ".join(matched_items)}</span>'
 
         headline_link = f'<a href="{url}" class="headline-link" target="_blank">{article.get("raw_text","")}</a>' if url else article.get("raw_text", "")
