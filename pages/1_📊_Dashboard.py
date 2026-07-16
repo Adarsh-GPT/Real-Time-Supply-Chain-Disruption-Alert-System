@@ -55,6 +55,16 @@ html,body,[class*="css"]{font-family:'Inter',sans-serif;}
 .headline-link:hover { color: var(--primary-color); text-decoration: none; }
 .meta-row { font-size: 0.78rem; color: #8899aa; }
 .impact-text { font-size: 0.82rem; margin-top: 6px; }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .metric-number { font-size: 1.6rem !important; }
+    .metric-label { font-size: 0.75rem !important; }
+    .metric-card { padding: 12px 10px !important; margin-bottom: 8px; }
+    .risk-card { padding: 12px 14px !important; }
+    .headline-text { font-size: 0.9rem !important; }
+    .badge { padding: 2px 6px !important; font-size: 0.7rem !important; }
+}
 </style>
 """, unsafe_allow_html=True)
 

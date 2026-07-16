@@ -37,59 +37,77 @@ def generate_messy_data():
 df_messy = generate_messy_data()
 
 st.markdown("### 1. Raw Data Ingestion (Dirty Data)")
-st.write("Data extracted from legacy supplier systems often contains inconsistencies, nulls, and format errors.")
+uploaded_file = st.file_uploader("Upload your own messy CSV (or use our default ERP extract)", type=["csv"])
+
+if uploaded_file is not None:
+    try:
+        df_messy = pd.read_csv(uploaded_file)
+        st.success("Custom CSV loaded successfully!")
+    except Exception as e:
+        st.error(f"Error reading CSV: {e}")
+        df_messy = generate_messy_data()
+else:
+    df_messy = generate_messy_data()
+    st.info("Using default legacy ERP extract. Upload a CSV above to test your own data.")
+
 st.dataframe(df_messy, use_container_width=True)
 
-st.markdown("### 2. Automated Cleaning Pipeline")
-st.write("We apply a standard Pandas pipeline to sanitize and normalize the dataset.")
+st.markdown("### 2. Interactive Python Pipeline Editor")
+st.write("Write your custom Pandas code below. The function **must** be named `clean_data` and accept/return a DataFrame `df`.")
 
-code = '''def clean_procurement_data(df):
-    # 1. Drop complete duplicates
-    df = df.drop_duplicates()
-    
-    # 2. Standardize text strings (strip whitespace, title case)
-    df['Company'] = df['Company'].str.strip().str.title()
-    df['Supplier_ID'] = df['Supplier_ID'].str.strip().str.upper()
-    df['Company'] = df['Company'].replace('Marriott Int.', 'Marriott')
-    
-    # 3. Handle missing values
-    df = df.dropna(subset=['Supplier_ID', 'Amount_USD'])
-    
-    # 4. Clean and convert currency strings to float
-    df['Amount_USD'] = df['Amount_USD'].replace({'\\$': '', '€': '', ',': ''}, regex=True).astype(float)
-    df = df[df['Amount_USD'] > 0] # Remove negative anomalies
-    
-    # 5. Standardize dates
-    df['Order_Date'] = pd.to_datetime(df['Order_Date'], errors='coerce')
-    df = df.dropna(subset=['Order_Date']) # Drop rows where date parsing failed
-    
-    # 6. Cap Risk Score to valid range [0-100]
-    df['Risk_Score'] = df['Risk_Score'].clip(0, 100)
-    
-    return df.reset_index(drop=True)'''
-
-st.code(code, language='python')
-
-def clean_procurement_data(df):
+default_code = '''def clean_data(df):
     df = df.copy()
+    
+    # 1. Drop duplicates
     df = df.drop_duplicates()
-    df['Company'] = df['Company'].str.strip().str.title()
-    df['Supplier_ID'] = df['Supplier_ID'].str.strip().str.upper()
-    df['Company'] = df['Company'].replace('Marriott Int.', 'Marriott')
-    df = df.dropna(subset=['Supplier_ID', 'Amount_USD'])
-    df['Amount_USD'] = df['Amount_USD'].replace({'\\$': '', '€': '', ',': ''}, regex=True).astype(float)
-    df = df[df['Amount_USD'] > 0]
-    df['Order_Date'] = pd.to_datetime(df['Order_Date'], errors='coerce')
-    df = df.dropna(subset=['Order_Date'])
-    df['Risk_Score'] = df['Risk_Score'].clip(0, 100)
+    
+    # 2. Clean 'Company' names if column exists
+    if 'Company' in df.columns:
+        df['Company'] = df['Company'].astype(str).str.strip().str.title()
+        df['Company'] = df['Company'].replace('Marriott Int.', 'Marriott')
+        
+    # 3. Clean Currency if 'Amount_USD' exists
+    if 'Amount_USD' in df.columns:
+        df['Amount_USD'] = df['Amount_USD'].astype(str).replace({'\\$': '', '€': '', ',': ''}, regex=True).astype(float)
+        
+    # 4. Standardize dates
+    if 'Order_Date' in df.columns:
+        df['Order_Date'] = pd.to_datetime(df['Order_Date'], errors='coerce')
+        
     return df.reset_index(drop=True)
+'''
 
-df_clean = clean_procurement_data(df_messy)
+user_code = st.text_area("Python Editor", value=default_code, height=300, key="code_editor")
 
-st.markdown("### 3. Final Standardized Data (Ready for Analysis)")
-st.dataframe(df_clean, use_container_width=True)
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Original Rows", len(df_messy))
-col2.metric("Cleaned Rows", len(df_clean))
-col3.metric("Data Quality Score", "100%", delta="25%", delta_color="normal")
+st.markdown("### 3. Pipeline Execution Results")
+if st.button("🚀 Run Pipeline", type="primary"):
+    with st.spinner("Executing custom python script..."):
+        try:
+            # Create a safe dictionary for execution
+            local_env = {"pd": pd, "np": np}
+            
+            # Execute the user's code definition
+            exec(user_code, local_env)
+            
+            # Get the defined function
+            if "clean_data" not in local_env:
+                st.error("Error: Your code must define a function named `clean_data`.")
+            else:
+                clean_func = local_env["clean_data"]
+                df_clean = clean_func(df_messy)
+                
+                st.success("Pipeline executed successfully!")
+                st.dataframe(df_clean, use_container_width=True)
+                
+                # Show metrics
+                col1, col2, col3 = st.columns(3)
+                col1.metric("Original Rows", len(df_messy))
+                col2.metric("Cleaned Rows", len(df_clean))
+                col3.metric("Fields Transformed", sum(df_messy.dtypes != df_clean.dtypes) if len(df_messy.columns) == len(df_clean.columns) else "N/A", delta="Optimized")
+                
+                # Download button
+                csv = df_clean.to_csv(index=False).encode('utf-8')
+                st.download_button("⬇️ Download Cleaned Data", data=csv, file_name="cleaned_data.csv", mime="text/csv")
+                
+        except Exception as e:
+            st.error(f"❌ Execution Error:\n{str(e)}")

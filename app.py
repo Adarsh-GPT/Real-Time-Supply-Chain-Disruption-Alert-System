@@ -101,6 +101,26 @@ html, body, [class*="css"] {
     color: #00C853;
     margin: 8px 0;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 1.5rem !important;
+        margin: 1rem !important;
+        border-radius: 16px;
+    }
+    .logo-text {
+        font-size: 2.2rem !important;
+    }
+    .logo-sub {
+        font-size: 0.9rem !important;
+        margin-bottom: 1.5rem;
+    }
+    .industry-card {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 

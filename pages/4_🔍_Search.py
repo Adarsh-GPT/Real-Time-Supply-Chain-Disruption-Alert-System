@@ -29,14 +29,15 @@ if st.button("Search", type="primary"):
             from core.firebase_db import search_articles
             results = search_articles(query, limit=200)
         else:
-            # Fallback to dashboard cache for demo
+            # Live Deep-Dive Search: Actively fetch fresh news for this keyword from the web
             from core.ingestion import fetch_all_sources
             from core.processor import process_batch
             from core.risk_engine import score_batch
-            raw = fetch_all_sources()
+            
+            # Fetch up to 7 days back for this specific search query
+            raw = fetch_all_sources(query=query, days_back=7)
             processed = process_batch(raw)
-            scored = score_batch(processed, st.session_state.get("watchlist", {}))
-            results = [r for r in scored if query.lower() in r.get("raw_text", "").lower()]
+            results = score_batch(processed, st.session_state.get("watchlist", {}))
             
         if min_risk == "High":
             results = [r for r in results if r.get("risk_level") == "High"]

@@ -1,5 +1,7 @@
 # 📡 SupplyRadar
 
+> **Live Demo:** [https://supplyradar.streamlit.app/](https://supplyradar.streamlit.app/)
+> 
 > **Real-Time, AI-Powered Supply Chain Intelligence Platform**
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)

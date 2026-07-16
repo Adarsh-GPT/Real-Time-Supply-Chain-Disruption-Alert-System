@@ -90,28 +90,32 @@ st.markdown("---")
 with st.expander("PDF Report Configuration"):
     st.markdown("Feature completed in Phase 6. Use the Executive Report page to generate PDFs.")
     
-with st.expander("Telegram Alerts"):
-    from config.settings import settings
-    if settings.telegram_bot_token and settings.telegram_chat_id:
-        st.success("✅ Telegram alerts are configured!")
+with st.expander("📱 Personal Telegram Alerts"):
+    st.markdown("Receive instant push notifications on your phone for HIGH risk events matching your watchlist.")
+    
+    # Load user's personal telegram settings
+    profile = st.session_state.get("user_profile", {})
+    t_bot = profile.get("telegram_bot_token", "")
+    t_chat = profile.get("telegram_chat_id", "")
+    
+    bot_in = st.text_input("Your Bot Token", value=t_bot, type="password", help="Create a bot via @BotFather on Telegram")
+    chat_in = st.text_input("Your Chat ID", value=t_chat, help="Get this from @userinfobot")
+    
+    if st.button("Save Telegram Settings"):
+        profile["telegram_bot_token"] = bot_in
+        profile["telegram_chat_id"] = chat_in
+        st.session_state.user_profile = profile
+        
+        # Save to demo DB
+        from core.demo_db import save_demo_user
+        save_demo_user(st.session_state.email, profile, st.session_state.watchlist)
+        st.success("✅ Personal Telegram settings saved!")
+        
+    if bot_in and chat_in:
         if st.button("Send Test Alert"):
             from core.alerts import send_telegram_message
-            test_msg = "👋 <b>Hello from SupplyRadar!</b>\n\nYour Telegram integration is working perfectly. You will now receive push notifications for HIGH risk events that match your watchlist."
-            if send_telegram_message(settings.telegram_bot_token, settings.telegram_chat_id, test_msg):
+            test_msg = "👋 <b>Hello from SupplyRadar!</b>\n\nYour personal Telegram integration is working perfectly."
+            if send_telegram_message(bot_in, chat_in, test_msg):
                 st.toast("Test alert sent to Telegram!", icon="✅")
             else:
                 st.error("Failed to send test alert. Check your Bot Token and Chat ID.")
-    else:
-        st.warning("⚠️ Telegram alerts are NOT configured.")
-        st.markdown("""
-        **How to set up:**
-        1. Message [@BotFather](https://t.me/BotFather) on Telegram and type `/newbot` to create a bot.
-        2. Copy the API Token it gives you.
-        3. Message [@userinfobot](https://t.me/userinfobot) to get your Chat ID.
-        4. Open your `.env` file and add:
-        ```env
-        TELEGRAM_BOT_TOKEN=your_token_here
-        TELEGRAM_CHAT_ID=your_chat_id_here
-        ```
-        5. Restart the Streamlit app.
-        """)
